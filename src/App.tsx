@@ -1,11 +1,16 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers */
 import React, { useEffect, useRef, useState } from 'react';
 import './App.css';
+import Button from './components/button';
+import Ball from './components/ball';
+import Block from './components/block';
 
 const ONE_SECOND_IN_MILISECONDS = 1000;
 const ONE_SECOND = 1;
 const ZERO_VALUE = 0;
 const MAX_SECONDS = 5;
+const HALF = 2;
+const QUATER = 4;
+const BALL_WIDTH = 50;
 
 enum TIMER_MODES {
   OFF = 'OFF',
@@ -17,13 +22,26 @@ function App() {
   const [timer, setTimer] = useState<string | NodeJS.Timer>('');
   const [timerMode, setTimerMode] = useState(TIMER_MODES.OFF);
   const [seconds, setSeconds] = useState(MAX_SECONDS);
-  const [block1XPostion, setBlock1XPostion] = useState(ZERO_VALUE);
-  const [block1YPostion, setBlock1YPostion] = useState(ZERO_VALUE);
-  const [block2XPostion, setBlock2XPostion] = useState(ZERO_VALUE);
-  const [block2YPostion, setBlock2YPostion] = useState(ZERO_VALUE);
+  const [block2Positions, setBlock2Positions] = useState({ x: ZERO_VALUE, y: ZERO_VALUE });
+  const [activeBallAnimation, setActiveBallAnimation] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [windowHeight, setWindowHeight] = useState(window.innerHeight);
 
   const block1Ref = useRef<HTMLDivElement | null>(null);
   const block2Ref = useRef<HTMLDivElement | null>(null);
+
+  const handleResize = () => {
+    setWindowWidth(window.innerWidth);
+    setWindowHeight(window.innerHeight);
+  };
+
+  useEffect(() => {
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   useEffect(() => {
     if (timerMode === TIMER_MODES.ON) {
@@ -31,6 +49,8 @@ function App() {
         setSeconds((prev) => prev - ONE_SECOND);
       }, ONE_SECOND_IN_MILISECONDS);
       setTimer(timerId);
+    } else {
+      clearInterval(timer);
     }
   }, [timerMode]);
 
@@ -44,6 +64,7 @@ function App() {
 
   const onClickHandler = () => {
     setTimerMode(TIMER_MODES.ON);
+    setActiveBallAnimation(true);
   };
 
   const isStartButtonDisabled = timerMode === TIMER_MODES.ON;
@@ -52,49 +73,49 @@ function App() {
     const block1Rect = block1Ref?.current?.getBoundingClientRect();
     const block2Rect = block2Ref?.current?.getBoundingClientRect();
 
-    if (block1Rect && block2Rect && timerMode) {
-      setBlock1XPostion(block1Rect.x);
-      setBlock1YPostion(block1Rect.y);
-      setBlock2XPostion(block2Rect.x);
-      setBlock2YPostion(block2Rect.y);
+    if (block1Rect && block2Rect) {
+      document.documentElement.style.setProperty(
+        '--bal-top-position',
+        `${block1Rect.top + block1Rect.height / QUATER}px`,
+      );
+
+      document.documentElement.style.setProperty(
+        '--bal-left-position',
+        `${block1Rect.left + block1Rect.width / QUATER}px`,
+      );
+
+      setBlock2Positions({ x: block2Rect.x, y: block2Rect.y });
 
       document.documentElement.style.setProperty(
         '--ball-end-x-position',
-        `${block2XPostion - block1XPostion}px`,
+        `${block2Positions.x + BALL_WIDTH / HALF}px`,
       );
 
-      let resultYPosition = 0;
-
-      if (block1YPostion > block2YPostion) {
-        resultYPosition = block2YPostion - block1YPostion;
-      } else {
-        resultYPosition = block1YPostion - block2YPostion;
-      }
-
-      document.documentElement.style.setProperty('--ball-end-y-position', `${resultYPosition}px`);
+      document.documentElement.style.setProperty(
+        '--ball-end-y-position',
+        `${block2Positions.y + BALL_WIDTH / HALF}px`,
+      );
     }
-  }, [timerMode]);
+  }, [timerMode, windowWidth, windowHeight]);
+
+  const onBallAnimationEndHandler = () => {
+    setActiveBallAnimation(false);
+  };
 
   return (
     <div className="container">
       <div className="sections-container">
-        <div ref={block1Ref} className="block1">
-          <p>1</p>
-          {isStartButtonDisabled && <div className="ball" />}
-        </div>
-        <div className="block2" ref={block2Ref}>
-          2
-        </div>
+        <Block name="1" blockRef={block1Ref} className="block1" />
+        <Block name="2" blockRef={block2Ref} className="block2" />
       </div>
-      <div className="button-container">
-        <button
-          disabled={isStartButtonDisabled}
-          type="button"
-          onClick={onClickHandler}
-          className="start-button">
-          {!isStartButtonDisabled ? 'start' : `${seconds}`}
-        </button>
-      </div>
+      <Button
+        isDisabled={isStartButtonDisabled}
+        onClickHandler={onClickHandler}
+        className="start-button"
+        value={!isStartButtonDisabled ? 'start' : `${seconds}`}
+        btnContainerClassName="button-container"
+      />
+      {activeBallAnimation && <Ball onAnimationEnd={onBallAnimationEndHandler} className="ball" />}
     </div>
   );
 }

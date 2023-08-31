@@ -1,6 +1,8 @@
 :root {
   --ball-end-x-position: 0px;
   --ball-end-y-position: 0px;
+  --bal-top-position: 0px;
+  --bal-left-position: 0px;
 }
 
 .container {
@@ -8,6 +10,7 @@
   height: 100vh;
   flex-direction: column;
   justify-content: center;
+  position: relative;
 }
 
 .sections-container {
@@ -20,7 +23,6 @@
 
 .block1 {
   display: flex;
-  position: relative;
   align-items: center;
   justify-content: center;
   flex-direction: column;
@@ -29,7 +31,7 @@
   margin: 0px 50px;
   color: #fff;
   background-color: #00b4cc;
-  animation: moveUpDown 5s infinite alternate;
+  animation: moveUpDown 2.5s infinite alternate-reverse;
 }
 
 .block2 {
@@ -79,8 +81,11 @@
   border-radius: 50%;
   background-color: #00ff37;
   position: absolute;
-
-  animation: ballAnimation 5s;
+  top: var(--bal-top-position);
+  left: var(--bal-left-position);
+  animation: ballAnimation 2s;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
 }
 
 @keyframes moveUpDown {
@@ -94,9 +99,11 @@
 
 @keyframes ballAnimation {
   0% {
-    transform: translate(0, 0);
+    top: var(--bal-top-position);
+    left: var(--bal-left-position);
   }
   100% {
-    transform: translate(var(--ball-end-x-position), var(--ball-end-y-position));
+    top: var(--ball-end-y-position);
+    left: var(--ball-end-x-position);
   }
 }
