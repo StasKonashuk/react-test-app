@@ -1,8 +1,13 @@
+:root {
+  --ball-end-x-position: 0px;
+  --ball-end-y-position: 0px;
+}
+
 .container {
-  align-items: center;
-  padding: 100px;
   display: flex;
+  height: 100vh;
   flex-direction: column;
+  justify-content: center;
 }
 
 .sections-container {
@@ -13,15 +18,30 @@
   width: 100%;
 }
 
-.section {
+.block1 {
+  display: flex;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: 100px;
+  height: 100px;
+  margin: 0px 50px;
+  color: #fff;
+  background-color: #00b4cc;
+  animation: moveUpDown 5s infinite alternate;
+}
+
+.block2 {
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  width: 50%;
-  height: 50vh;
-  margin: 0px 20px;
-  border: 1px solid #062ea5;
+  width: 100px;
+  height: 100px;
+  margin: 0px 50px;
+  color: #fff;
+  background-color: #00b4cc;
 }
 
 .button-container {
@@ -29,15 +49,16 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  margin-top: 50px;
+  margin-top: 100px;
 }
 
 .start-button {
-  border-radius: 4px;
-  width: 300px;
-  padding: 5px;
+  width: 100px;
+  text-align: center;
+  border-radius: 15px;
+  padding: 10px 20px;
   text-transform: uppercase;
-  background-color: #062ea5;
+  background-color: #000000;
   color: #fff;
   border: none;
 }
@@ -45,4 +66,37 @@
 .start-button:hover {
   opacity: 0.7;
   cursor: pointer;
+}
+
+.start-button:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.ball {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #00ff37;
+  position: absolute;
+
+  animation: ballAnimation 5s;
+}
+
+@keyframes moveUpDown {
+  0% {
+    transform: translateY(100%);
+  }
+  100% {
+    transform: translateY(-100%);
+  }
+}
+
+@keyframes ballAnimation {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(var(--ball-end-x-position), var(--ball-end-y-position));
+  }
 }
